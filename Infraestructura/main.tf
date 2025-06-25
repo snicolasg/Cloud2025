@@ -1,15 +1,19 @@
+#Define el proveedor AWS para el proyecto Terraform
 provider "aws" {
   region = var.region
 }
 
+#Busca un rol IAM existente llamado LabRole
 data "aws_iam_role" "labrole" {
   name = "LabRole"
 }
 
+#Crea una VPC con el bloque CIDR definido en la variable var.vpc_cidr
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 }
 
+#Crea dos subredes públicas en diferentes zonas de disponibilidad (var.az_1 y var.az_2)
 resource "aws_subnet" "public_subnet_1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public_subnet_1_cidr
@@ -17,6 +21,7 @@ resource "aws_subnet" "public_subnet_1" {
   map_public_ip_on_launch = true
 }
 
+#Crea dos subredes privadas para usos internos, en diferentes zonas (var.az_3 y var.az_4)
 resource "aws_subnet" "public_subnet_2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public_subnet_2_cidr
@@ -24,22 +29,26 @@ resource "aws_subnet" "public_subnet_2" {
   map_public_ip_on_launch = true
 }
 
+#Crea un gateway de internet para permitir tráfico entrante/saliente en las subredes públicas
 resource "aws_subnet" "private_subnet_1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private_subnet_1_cidr
   availability_zone = var.az_3
 }
 
+#Configura una tabla de rutas para permitir acceso a internet mediante el gateway.
 resource "aws_subnet" "private_subnet_2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private_subnet_2_cidr
   availability_zone = var.az_4
 }
 
+#Asocia la tabla de rutas pública a las subredes públicas.
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 }
 
+#Crea un clúster EKS utilizando subredes públicas y privadas. Asocia el rol IAM LabRole al clúster.
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -49,16 +58,19 @@ resource "aws_route_table" "public" {
   }
 }
 
+#Crea un grupo de nodos para el clúster EKS en las subredes públicas. Configura escalado automático. Permite acceso remoto usando la clave SSH especificada.
 resource "aws_route_table_association" "public_subnet_1" {
   subnet_id      = aws_subnet.public_subnet_1.id
   route_table_id = aws_route_table.public.id
 }
 
+#Asocia la tabla de rutas pública a las subredes públicas.
 resource "aws_route_table_association" "public_subnet_2" {
   subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.public.id
 }
 
+#Crea un clúster EKS utilizando subredes públicas y privadas.
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   role_arn = data.aws_iam_role.labrole.arn
@@ -68,6 +80,7 @@ resource "aws_eks_cluster" "main" {
   }
 }
 
+#Crea un grupo de nodos para el clúster EKS en las subredes públicas.
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = var.node_group_name
@@ -85,6 +98,7 @@ resource "aws_eks_node_group" "main" {
   }
 }
 
+#Crea un grupo de seguridad para permitir acceso SSH a los nodos del clúster.
 resource "aws_security_group" "eks_nodes_sg" {
   name        = "eks_nodes_sg"
   description = "Permitir SSH a los nodos EKS"
@@ -105,6 +119,7 @@ resource "aws_security_group" "eks_nodes_sg" {
   }
 }
 
+#Define un grupo de subredes privadas que RDS utilizará.
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = "rds-subnet-group"
   subnet_ids = [
@@ -117,6 +132,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
   }
 }
 
+#Permite acceso al puerto 3306 (MySQL) desde la VPC para EKS.
 resource "aws_security_group" "rds_sg" {
   name        = "rds_sg"
   description = "Permitir acceso a RDS desde EKS"
@@ -136,6 +152,8 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+#Crea una instancia RDS MySQL privada con replicación multi-AZ.
 resource "aws_db_instance" "primary" {
   identifier             = "mi-db-principal"
   engine                 = "mysql"
@@ -153,6 +171,7 @@ resource "aws_db_instance" "primary" {
   enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
 }
 
+#Define un almacén para guardar backups.
 resource "aws_backup_vault" "rds_backup_vault" {
   name        = "rds-backup-vault"
   tags = {
@@ -160,6 +179,7 @@ resource "aws_backup_vault" "rds_backup_vault" {
   }
 }
 
+#Programa backups diarios de la base de datos.
 resource "aws_backup_plan" "rds_backup_plan" {
   name = "rds-backup-plan"
 
@@ -175,6 +195,7 @@ resource "aws_backup_plan" "rds_backup_plan" {
   }
 }
 
+#Aplica el plan de backup al RDS creado.
 resource "aws_backup_selection" "rds_backup_selection" {
   iam_role_arn = data.aws_iam_role.labrole.arn
   name         = "rds-backup-selection"
