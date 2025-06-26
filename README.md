@@ -32,8 +32,9 @@ Cuenta con alta disponibilidad y respaldo ademas que escala automarticamente baj
 
 ## Uso
 
-1) Navega al directorio: cd Obligatorio-Cloud-2025
-2) Ejecutar el scripts: bash despliega.sh
+1) Navega al directorio: cd Cloud2025
+2) Navega al sub directorio: cd Infraestructura
+3) Ejecutar el scripts: bash despliega.sh
 
 
 ## Diagrama de infraestructura
