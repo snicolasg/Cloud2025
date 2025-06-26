@@ -17,6 +17,8 @@ Cuenta con alta disponibilidad y respaldo ademas que escala automarticamente baj
 
 ## Instalación
 
+En un SO Centros Stream:
+
 1) sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 2) sudo dnf install -y terraform
 3) wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
