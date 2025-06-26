@@ -32,6 +32,8 @@ En un SO Centros Stream:
 11) sudo mv kubectl /usr/local/bin/
 12) Clona el repositorio: git clone https://github.com/snicolasg/Cloud2025.git
 
+En SO Ubuntu sustituir dnf por apt: sudo apt install .....
+
 ## Uso
 
 1) Navega al directorio: cd Cloud2025
