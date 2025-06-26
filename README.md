@@ -4,7 +4,7 @@ Bienvenido a la guía de usuario. Aquí encontrarás cómo usar esta aplicación
 
 ## Descripción
 
-Este proyecto realiza un despliegue completo de infraestructura en AWS usando Terraform y Kubernetes, que sostiene una app que guarda sus datos en ena base de datos relacional, guarda sus logs y tiene un backup de su información.
+Este proyecto realiza un despliegue completo de infraestructura en AWS usando Terraform y Kubernetes, que sostiene una app que guarda sus datos en una base de datos relacional, guarda sus logs y tiene un backup de su información.
 Cuenta con alta disponibilidad y respaldo ademas que escala automarticamente bajo demanda.
 
 ## Requisitos
