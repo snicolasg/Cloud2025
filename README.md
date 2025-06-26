@@ -28,7 +28,7 @@ Cuenta con alta disponibilidad y respaldo ademas que escala automarticamente baj
 9) wget https://dl.k8s.io/release/$(wget -qO- https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
 10) chmod +x kubectl
 11) sudo mv kubectl /usr/local/bin/
-12) Clona el repositorio: git clone https://github.com/snicolasg/Obligatorio-Cloud-2025.git
+12) Clona el repositorio: git clone https://github.com/snicolasg/Cloud2025.git
 
 ## Uso
 
